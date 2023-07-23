@@ -22,11 +22,9 @@ class Ingredient(models.Model):
 
 class Recipe(models.Model):
     author = models.ForeignKey(User, related_name='recipe', on_delete=models.CASCADE)
-    image = models.ImageField(blank=False, null=False)
+    image = models.ImageField(blank=False, null=False, upload_to='recipes/images')
     name = models.CharField(max_length=200, blank=False, null=False)
     text = models.TextField(blank=False, null=False)
-    ingredients = models.ManyToManyField(Ingredient, through='RecipeIngredient', blank=False)
-    tags = models.ManyToManyField(Tag, through='RecipeTag', blank=False)
     cooking_time = models.IntegerField(blank=False, null=False)
 
     class Meta:
@@ -70,8 +68,8 @@ class RecipeIngredient(models.Model):
     class Meta:
         constraints = [
             models.UniqueConstraint(
-                fields=('recipe', 'ingredient'),
-                name='unique_recipe_ingredient'
+                fields=('recipe', 'ingredient', 'amount'),
+                name='unique_recipe_ingredient_amount'
             )
         ]
 

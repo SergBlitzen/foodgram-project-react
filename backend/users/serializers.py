@@ -1,7 +1,8 @@
 from rest_framework import serializers
 from djoser.serializers import TokenCreateSerializer, SetPasswordSerializer
 
-from .models import User
+from recipes.models import Recipe
+from .models import User, UserFollow
 
 
 class SignUpSerializer(serializers.ModelSerializer):
@@ -63,7 +64,50 @@ class UserSerializer(serializers.ModelSerializer):
             'last_name',
             'is_subscribed'
         )
-        read_only_fields = ('id',)
 
-    def get_is_subscribed(self, value):
-        return False
+    def get_is_subscribed(self, obj):
+        try:
+            user = self.context['request'].user
+        # Перехват ошибки для метода update.
+        except Exception:
+            user = obj
+        author = obj
+        try:
+            follow = UserFollow.objects.get(user=user, author=author)
+            if follow:
+                return True
+        except Exception:
+            return False
+
+
+class UserRecipeSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Recipe
+        fields = ('id', 'name', 'image', 'cooking_time')
+
+
+class UserFollowSerializer(UserSerializer):
+    recipes = serializers.SerializerMethodField()
+    recipes_count = serializers.SerializerMethodField()
+
+    def get_recipes(self, obj):
+        recipes = Recipe.objects.filter(author=obj)
+        return UserRecipeSerializer(recipes, many=True, context=self.context).data
+
+    def get_recipes_count(self, obj):
+        recipes_count = Recipe.objects.filter(author=obj).count()
+        return recipes_count
+
+    class Meta:
+        model = User
+        fields = (
+            'email',
+            'id',
+            'username',
+            'first_name',
+            'last_name',
+            'is_subscribed',
+            'recipes',
+            'recipes_count'
+        )
