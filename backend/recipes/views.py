@@ -37,7 +37,9 @@ class RecipeViewSet(viewsets.ModelViewSet):
             'recipe': self.get_object(),
             'user': self.request.user
         }
-        return create_instance(model, serializer, context, message, instance, objects)
+        return create_instance(
+            model, serializer, context, message, instance, objects
+        )
 
     @favorite.mapping.delete
     def delete_favorite(self, request, pk=None):
@@ -67,7 +69,9 @@ class RecipeViewSet(viewsets.ModelViewSet):
             'user': self.request.user
         }
 
-        return create_instance(model, serializer, context, message, instance, objects)
+        return create_instance(
+            model, serializer, context, message, instance, objects
+        )
 
     @shopping_cart.mapping.delete
     def delete_shopping_cart(self, request, pk=None):
@@ -91,16 +95,22 @@ class RecipeViewSet(viewsets.ModelViewSet):
         """
 
         recipes_data = []
-        recipes = [obj.recipe for obj in Cart.objects.filter(user=request.user)]
+        recipes = [
+            obj.recipe for obj in Cart.objects.filter(user=request.user)
+        ]
         for recipe in recipes:
             recipe_ingredients = f'{recipe.name}: \n'
             for obj in RecipeIngredient.objects.filter(recipe=recipe):
                 recipe_ingredients += str(obj.ingredient.name) + ' '
                 recipe_ingredients += str(obj.amount) + ' '
-                recipe_ingredients += str(obj.ingredient.measurement_unit) + '\n'
+                recipe_ingredients += str(
+                    obj.ingredient.measurement_unit
+                ) + '\n'
             recipes_data.append(recipe_ingredients)
         response = HttpResponse(recipes_data, content_type='txt')
-        response['Content-Disposition'] = 'attachment; filename="shopping_list"'
+        response['Content-Disposition'] = (
+            'attachment; filename="shopping_list"'
+        )
         return response
 
 

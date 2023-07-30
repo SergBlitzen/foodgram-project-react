@@ -3,7 +3,8 @@ import base64
 from django.core.files.base import ContentFile
 from rest_framework import serializers
 
-from .models import Recipe, Tag, Ingredient, RecipeIngredient, RecipeTag, RecipeFav, Cart
+from .models import (Recipe, Tag, Ingredient, RecipeIngredient,
+                     RecipeTag, RecipeFav, Cart)
 from users.serializers import UserSerializer
 
 
@@ -56,7 +57,9 @@ class RecipeIngredientSerializer(serializers.ModelSerializer):
 
     id = serializers.IntegerField(source='ingredient.pk')
     name = serializers.CharField(source='ingredient.name')
-    measurement_unit = serializers.CharField(source='ingredient.measurement_unit')
+    measurement_unit = serializers.CharField(
+        source='ingredient.measurement_unit'
+    )
     amount = serializers.IntegerField()
 
     class Meta:
@@ -114,16 +117,22 @@ class RecipeSerializer(serializers.ModelSerializer):
         try:
             int(cooking_time)
         except ValueError:
-            raise serializers.ValidationError('Время готовки должно быть числом!')
+            raise serializers.ValidationError(
+                'Время готовки должно быть числом!'
+            )
         if int(cooking_time) < 0:
-            raise serializers.ValidationError('Время готовки должно быть положительным числом!')
+            raise serializers.ValidationError(
+                'Время готовки должно быть положительным числом!'
+            )
         # Валидация значения ингредиентов на случай, если
         # в поле 'amount' будет не число.
         for ingredient in self.initial_data['ingredients']:
             try:
                 int(ingredient['amount'])
             except ValueError:
-                raise serializers.ValidationError('Количество ингредиентов должно быть целым числом!')
+                raise serializers.ValidationError(
+                    'Количество ингредиентов должно быть целым числом!'
+                )
         return data
 
     def get_ingredients(self, obj):

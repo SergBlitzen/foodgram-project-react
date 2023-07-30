@@ -24,14 +24,22 @@ class CustomUserViewSet(UserViewSet):
     def get_subscriptions(self, request):
         """Action-метод для получения списка подписок."""
 
-        queryset = [user.author for user in UserFollow.objects.filter(user=request.user)]
+        queryset = [
+            user.author for user in UserFollow.objects.filter(
+                user=request.user
+            )
+        ]
         context = self.get_serializer_context()
         # Проверка на необходимость пагинации респонса.
         page = self.paginate_queryset(queryset)
         if page is not None:
-            serializer = UserFollowSerializer(page, many=True, context=context)
+            serializer = UserFollowSerializer(
+                page, many=True, context=context
+            )
             return self.get_paginated_response(serializer.data)
-        serializer = UserFollowSerializer(data=queryset, context=context, many=True)
+        serializer = UserFollowSerializer(
+            data=queryset, context=context, many=True
+        )
         serializer.is_valid()
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -52,7 +60,9 @@ class CustomUserViewSet(UserViewSet):
             'author': self.get_object()
         }
 
-        return create_instance(model, serializer, context, message, instance, objects)
+        return create_instance(
+            model, serializer, context, message, instance, objects
+        )
 
     @user_follow.mapping.delete
     def delete_user_follow(self, request, id=None):
