@@ -1,14 +1,17 @@
 from django.contrib import admin
 
-from .models import Recipe, Tag, Ingredient, Cart, RecipeTag, RecipeIngredient, RecipeFav
+from .models import Recipe, Tag, Ingredient,\
+    Cart, RecipeTag, RecipeIngredient, RecipeFav
 
 
 class TagInLine(admin.StackedInline):
+    """Вложенная панель с тегами для модели рецептов."""
     model = RecipeTag
     extra = 1
 
 
 class IngredientInline(admin.StackedInline):
+    """Вложенная модель с ингредиентами для модели рецептов."""
     model = RecipeIngredient
     extra = 1
 
@@ -41,4 +44,9 @@ class RecipeIngredientAdmin(admin.ModelAdmin):
 
 @admin.register(RecipeFav)
 class RecipeFavAdmin(admin.ModelAdmin):
+    list_display = ('id', 'recipe', 'user')
+
+
+@admin.register(Cart)
+class CartAdmin(admin.ModelAdmin):
     list_display = ('id', 'recipe', 'user')

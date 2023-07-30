@@ -1,11 +1,12 @@
 from rest_framework import serializers
-from djoser.serializers import TokenCreateSerializer, SetPasswordSerializer
 
 from recipes.models import Recipe
 from .models import User, UserFollow
 
 
 class SignUpSerializer(serializers.ModelSerializer):
+    """Сериализатор для регистрации пользователя."""
+    password = serializers.CharField()
 
     class Meta:
         model = User
@@ -19,35 +20,19 @@ class SignUpSerializer(serializers.ModelSerializer):
         )
         read_only_fields = ('id',)
 
+    def create(self, validated_data):
+        """Метод для POST-запроса."""
 
-class CustomTokenCreateSerializer(TokenCreateSerializer):
-    email = serializers.EmailField()
-    password = serializers.CharField()
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-    def validate(self, data):
-        try:
-            self.user = User.objects.get(email=data['email'], password=data['password'])
-            return data
-        except Exception:
-            self.fail('invalid_credentials')
-
-
-class CustomSetPasswordSerializer(SetPasswordSerializer):
-    current_password = serializers.CharField()
-    new_password = serializers.CharField()
-
-    def validate_current_password(self, value):
-        is_password_valid = (self.context["request"].user.password == value)
-        if is_password_valid:
-            return value
-        else:
-            self.fail("invalid_password")
+        password = validated_data.pop('password')
+        user = super().create(validated_data)
+        # Отдельная установка пароля для того, чтобы он захешировался.
+        user.set_password(password)
+        user.save()
+        return user
 
 
 class UserSerializer(serializers.ModelSerializer):
+    """Основнйо сериализатор для вывода информации о пользователе."""
     email = serializers.EmailField()
     username = serializers.CharField()
     first_name = serializers.CharField()
@@ -66,12 +51,17 @@ class UserSerializer(serializers.ModelSerializer):
         )
 
     def get_is_subscribed(self, obj):
+        """Метод получения статуса подписки на пользователя."""
+
         try:
             user = self.context['request'].user
-        # Перехват ошибки для метода update.
+        # Перехват ошибки для метода update, в который передаётся
+        # объект самого пользователя.
         except Exception:
             user = obj
         author = obj
+        # Также перехватывает ошибки, связанные с невалидными
+        # комбинациями пользователя/автора.
         try:
             follow = UserFollow.objects.get(user=user, author=author)
             if follow:
@@ -81,6 +71,7 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class UserRecipeSerializer(serializers.ModelSerializer):
+    """Сериализатор для выдачи рецептов в сериализаторе пользователя."""
 
     class Meta:
         model = Recipe
@@ -88,14 +79,25 @@ class UserRecipeSerializer(serializers.ModelSerializer):
 
 
 class UserFollowSerializer(UserSerializer):
+    """
+    Сериалиатор для получения информации о пользователе
+    в зоне подписок.
+    """
+
     recipes = serializers.SerializerMethodField()
     recipes_count = serializers.SerializerMethodField()
 
     def get_recipes(self, obj):
+        """Метод получения рецептов пользователя."""
+
         recipes = Recipe.objects.filter(author=obj)
-        return UserRecipeSerializer(recipes, many=True, context=self.context).data
+        return UserRecipeSerializer(
+            recipes, many=True, context=self.context
+        ).data
 
     def get_recipes_count(self, obj):
+        """Метод получения количества рецептов пользователя."""
+
         recipes_count = Recipe.objects.filter(author=obj).count()
         return recipes_count
 
