@@ -10,6 +10,8 @@
 ```docker compose up --build```<br>
 — провести миграции в контейнере с бэкендом<br>
 ```docker compose exec backen python manage.py migrate```<br>
+— (дополнительно) Загрузить в базу образец данных ингредиентов:<br>
+```docker compose exec backend python manage.py import_data```<br>
 <br>
 Для запуска необходимы переменные окружения файла .env в директории infra. Пример заполнения:<br>
 POSTGRES_USER=string<br>
@@ -18,4 +20,4 @@ POSTGRES_DB=string<br>
 DB_HOST=string<br>
 DB_PORT=integer<br>
 SECRET_KEY=string<br>
-DEBUG=boolean<br>
+DEBUG=boolean. Нужно иметь в виду, что любое нечисловое значение, попадающее в env_file, становится строкой.<br>

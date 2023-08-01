@@ -34,7 +34,6 @@ class User(AbstractUser):
 
     class Meta:
         verbose_name = 'Пользователь'
-        ordering = ['id']
 
 
 class UserFollow(models.Model):
@@ -55,7 +54,7 @@ class UserFollow(models.Model):
 
     class Meta:
         verbose_name = 'Подписки'
-        ordering = ['id']
+        ordering = ('id',)
         constraints = [
             models.UniqueConstraint(
                 fields=('user', 'author'),
