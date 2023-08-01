@@ -2,6 +2,7 @@ import base64
 
 from django.core.files.base import ContentFile
 from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
 
 from .models import (Recipe, Tag, Ingredient, RecipeIngredient,
                      RecipeTag, RecipeFav, Cart)
@@ -11,7 +12,7 @@ from users.serializers import UserSerializer
 class Base64ImageField(serializers.ImageField):
     """Сериализатор для конвертирования изображений."""
 
-    def to_internal_value(self, data):
+    def to_internal_value(self, data: str):
         if isinstance(data, str) and data.startswith('data:image'):
             format, imgstr = data.split(';base64,')
             ext = format.split('/')[-1]
@@ -114,13 +115,7 @@ class RecipeSerializer(serializers.ModelSerializer):
         # Валидация значения времени готовки на случай,
         # если в данных будет не число.
         cooking_time = data['cooking_time']
-        try:
-            int(cooking_time)
-        except ValueError:
-            raise serializers.ValidationError(
-                'Время готовки должно быть числом!'
-            )
-        if int(cooking_time) < 0:
+        if int(cooking_time) <= 0:
             raise serializers.ValidationError(
                 'Время готовки должно быть положительным числом!'
             )
@@ -132,6 +127,10 @@ class RecipeSerializer(serializers.ModelSerializer):
             except ValueError:
                 raise serializers.ValidationError(
                     'Количество ингредиентов должно быть целым числом!'
+                )
+            except int(ingredient['amount']) <= 0:
+                raise serializers.ValidationError(
+                    'Количество ингредиентов должно быть положительным числом!'
                 )
         return data
 
@@ -170,26 +169,39 @@ class RecipeSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         """Метод POST объекта."""
 
-        # Рецепт создаётся в самом начале на условии того, что
+        # Рецепт создаётся в самом начале при условии, что
         # данные проходят изначальную валидацию.
         recipe = Recipe.objects.create(**validated_data)
         # Объекты связанных моделей рецептов с тегами и ингредиентами
-        # создаются уже после создания рецепта отдельно.
+        # создаются уже после создания рецепта отдельно. Параллельно с этим
+        # проводится проверка на дублирование тегов и ингредиентов
+        tags = []
         for tag_id in self.initial_data['tags']:
-            tag = Tag.objects.get(pk=tag_id)
-            RecipeTag.objects.create(recipe=recipe, tag=tag)
+            if tag_id not in tags:
+                tags.append(tag_id)
+                tag = Tag.objects.get(pk=tag_id)
+                RecipeTag.objects.create(recipe=recipe, tag=tag)
+            else:
+                recipe.delete()
+                raise ValidationError("Теги в рецепте не должны дублироваться!")
+        ingredients = []
         for ingredient_data in self.initial_data['ingredients']:
-            ingredient = Ingredient.objects.get(pk=ingredient_data['id'])
-            amount = ingredient_data['amount']
-            RecipeIngredient.objects.create(
-                recipe=recipe, ingredient=ingredient, amount=amount
-            )
+            if ingredient_data['id'] not in ingredients:
+                ingredients.append(ingredient_data['id'])
+                ingredient = Ingredient.objects.get(pk=ingredient_data['id'])
+                amount = ingredient_data['amount']
+                RecipeIngredient.objects.create(
+                    recipe=recipe, ingredient=ingredient, amount=amount
+                )
+            else:
+                recipe.delete()
+                raise ValidationError("Ингредиенты в рецепте не должны дублироваться!")
         return recipe
 
     def update(self, instance, validated_data):
         """Метод PATCH рецепта."""
 
-        # В начале происходит удаление старых объектов связных моделей,
+        # Сначала происходит удаление старых объектов связных моделей,
         # затем сразу же создаются новые.
         RecipeTag.objects.filter(recipe=instance).delete()
         for tag_id in self.initial_data['tags']:
@@ -202,7 +214,7 @@ class RecipeSerializer(serializers.ModelSerializer):
             RecipeIngredient.objects.create(
                 recipe=instance, ingredient=ingredient, amount=amount
             )
-        # После связных объектов обновляются параметры основного.
+        # После связанных объектов обновляются параметры основного.
         instance.name = validated_data['name']
         instance.text = validated_data['text']
         instance.image = validated_data['image']

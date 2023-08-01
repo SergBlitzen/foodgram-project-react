@@ -134,8 +134,6 @@ dmypy.json
 
 # Media
 /backend/media/
-/backend/recipes/migrations/
-/backend/users/migrations/
 
 # Legacy code
 /backend/legacy.py.bak

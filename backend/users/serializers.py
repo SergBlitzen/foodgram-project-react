@@ -60,13 +60,9 @@ class UserSerializer(serializers.ModelSerializer):
         except Exception:
             user = obj
         author = obj
-        # Также перехватывает ошибки, связанные с невалидными
-        # комбинациями пользователя/автора.
-        try:
-            follow = UserFollow.objects.get(user=user, author=author)
-            if follow:
-                return True
-        except Exception:
+        if UserFollow.objects.filter(user=user, author=author):
+            return True
+        else:
             return False
 
 

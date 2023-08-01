@@ -1,4 +1,7 @@
+from django.core.exceptions import ValidationError
 from django.db import models
+
+from colorfield.fields import ColorField
 
 from users.models import User
 
@@ -7,15 +10,13 @@ class Tag(models.Model):
     name = models.CharField(
         max_length=200,
         unique=True,
-        blank=False,
         null=False,
         verbose_name='Название тега',
         help_text='Введите название тега'
     )
-    color = models.CharField(
+    color = ColorField(
         max_length=7,
         unique=True,
-        blank=False,
         null=False,
         verbose_name='Цвет тега',
         help_text='Введите цвет тега в HEX-кодировке'
@@ -23,7 +24,6 @@ class Tag(models.Model):
     slug = models.SlugField(
         max_length=200,
         unique=True,
-        blank=False,
         null=False,
         verbose_name='Slug тега',
         help_text='Введите slug тега'
@@ -39,14 +39,13 @@ class Tag(models.Model):
 class Ingredient(models.Model):
     name = models.CharField(
         max_length=200,
-        blank=False,
         null=False,
+        unique=True,
         verbose_name='Название ингредиента',
         help_text='Введите название ингредиента'
     )
     measurement_unit = models.CharField(
-        max_length=200,
-        blank=False,
+        max_length=10,
         null=False,
         verbose_name='Мера объёма ингредиента',
         help_text='Введите меру измерения ингредиента'
@@ -68,7 +67,6 @@ class Recipe(models.Model):
         help_text='Укажите автора рецепта'
     )
     image = models.ImageField(
-        blank=False,
         null=False,
         upload_to='recipes/images',
         verbose_name='Изображение рецепта',
@@ -76,22 +74,23 @@ class Recipe(models.Model):
     )
     name = models.CharField(
         max_length=200,
-        blank=False,
         null=False,
         verbose_name='Название рецепта',
         help_text='Введите название рецепта'
     )
     text = models.TextField(
-        blank=False,
         null=False,
         verbose_name='Способ приготовления',
         help_text='Опишите способ приготовления'
     )
     cooking_time = models.PositiveSmallIntegerField(
-        blank=False,
         null=False,
         verbose_name='Время готовки',
         help_text='Укажите время готовки в минутах'
+    )
+    publish_date = models.DateTimeField(
+        verbose_name='Дата публикации рецепта',
+        auto_now_add=True
     )
     # У рецептов отсутствуют поля тегов и ингредиентов, но связь с ними
     # налажена благодаря связанным таблицам. Это несколько снижает явность
@@ -100,7 +99,7 @@ class Recipe(models.Model):
 
     class Meta:
         verbose_name = 'Рецепты'
-        ordering = ['-id']
+        ordering = ('-publish_date',)
 
     def __str__(self):
         return self.name
@@ -147,10 +146,13 @@ class RecipeIngredient(models.Model):
     )
     amount = models.PositiveIntegerField(
         null=False,
-        blank=False,
         verbose_name='Количество ингредиентов',
         help_text='Укажите количество ингредиента'
     )
+
+    def validate_amount(self, value):
+        if value <= 0:
+            raise ValidationError("Количество ингредиентов должно быть больше нуля.")
 
     class Meta:
         verbose_name = 'Ингредиенты рецептов'
