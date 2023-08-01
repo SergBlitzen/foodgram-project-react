@@ -152,7 +152,9 @@ class RecipeIngredient(models.Model):
 
     def validate_amount(self, value):
         if value <= 0:
-            raise ValidationError("Количество ингредиентов должно быть больше нуля.")
+            raise ValidationError(
+                "Количество ингредиентов должно быть больше нуля!"
+            )
 
     class Meta:
         verbose_name = 'Ингредиенты рецептов'

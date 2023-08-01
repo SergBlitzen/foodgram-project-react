@@ -183,7 +183,9 @@ class RecipeSerializer(serializers.ModelSerializer):
                 RecipeTag.objects.create(recipe=recipe, tag=tag)
             else:
                 recipe.delete()
-                raise ValidationError("Теги в рецепте не должны дублироваться!")
+                raise ValidationError(
+                    "Теги в рецепте не должны дублироваться!"
+                )
         ingredients = []
         for ingredient_data in self.initial_data['ingredients']:
             if ingredient_data['id'] not in ingredients:
@@ -195,7 +197,9 @@ class RecipeSerializer(serializers.ModelSerializer):
                 )
             else:
                 recipe.delete()
-                raise ValidationError("Ингредиенты в рецепте не должны дублироваться!")
+                raise ValidationError(
+                    "Ингредиенты в рецепте не должны дублироваться!"
+                )
         return recipe
 
     def update(self, instance, validated_data):
