@@ -1,4 +1,4 @@
-from django.core.exceptions import ValidationError
+from django.core.validators import MinValueValidator
 from django.db import models
 
 from colorfield.fields import ColorField
@@ -147,14 +147,10 @@ class RecipeIngredient(models.Model):
     amount = models.PositiveIntegerField(
         null=False,
         verbose_name='Количество ингредиентов',
-        help_text='Укажите количество ингредиента'
+        help_text='Укажите количество ингредиента',
+        validators=[MinValueValidator(
+            1, message="Количество ингредиентов должно быть больше нуля!")]
     )
-
-    def validate_amount(self, value):
-        if value <= 0:
-            raise ValidationError(
-                "Количество ингредиентов должно быть больше нуля!"
-            )
 
     class Meta:
         verbose_name = 'Ингредиенты рецептов'
