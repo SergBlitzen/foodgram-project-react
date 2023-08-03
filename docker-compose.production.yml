@@ -3,7 +3,7 @@ version: '3.3'
 volumes:
   pg_data:
   static:
-  foodgram_media:
+  media:
 
 services:
 
@@ -20,7 +20,7 @@ services:
       - db
     volumes:
       - static:/backend_static
-      - foodgram_media:/app/media/recipes/images
+      - media:/app/media/recipes/images
 
   frontend:
     image: sergblitzen/foodgram_frontend
@@ -34,6 +34,6 @@ services:
     env_file: .env
     volumes:
       - static:/static
-      - foodgram_media:/app/media/recipes/images
+      - media:/media/recipes/images
     ports:
       - 8000:80
