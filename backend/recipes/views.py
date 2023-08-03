@@ -4,10 +4,10 @@ from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 
 from users.serializers import UserRecipeSerializer
+
 from .filters import IngredientFilter, RecipeFilter
-from .models import Recipe, Tag, Ingredient, RecipeFav, Cart, RecipeIngredient
-from .serializers import RecipeSerializer, TagSerializer, \
-    IngredientSerializer
+from .models import Cart, Ingredient, Recipe, RecipeFav, RecipeIngredient, Tag
+from .serializers import IngredientSerializer, RecipeSerializer, TagSerializer
 from .utils import create_instance, delete_instance
 
 

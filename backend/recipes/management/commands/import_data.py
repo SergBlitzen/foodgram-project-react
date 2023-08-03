@@ -1,12 +1,11 @@
+import codecs
 import csv
 import os
-import codecs
 
 from django.conf import settings
 from django.core.management import BaseCommand
 
 from recipes.models import Ingredient
-
 
 data_dir = settings.BASE_DIR.parent / 'data'  # /foodgram-project-react/data
 file_list = os.listdir(data_dir)
