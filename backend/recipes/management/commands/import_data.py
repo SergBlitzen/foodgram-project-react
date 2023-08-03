@@ -6,7 +6,7 @@ from django.conf import settings
 from django.core.management import BaseCommand
 from recipes.models import Ingredient
 
-data_dir = settings.BASE_DIR.parent / 'data'  # /foodgram-project-react/data
+data_dir = settings.BASE_DIR / 'data'  # /foodgram-project-react/backend/data
 file_list = os.listdir(data_dir)
 
 
