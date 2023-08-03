@@ -20,7 +20,7 @@ services:
       - db
     volumes:
       - static:/backend_static
-      - media:/app/media
+      - media:/app/media/
 
   frontend:
     image: sergblitzen/foodgram_frontend
@@ -34,6 +34,6 @@ services:
     env_file: .env
     volumes:
       - static:/static
-      - media:/app/media
+      - media:/app/media/
     ports:
       - 8000:80
