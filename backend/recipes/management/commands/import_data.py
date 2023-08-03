@@ -27,6 +27,7 @@ class Command(BaseCommand):
                             model.objects.get_or_create(
                                 name=row[0], measurement_unit=row[1]
                             )
-                            self.stdout(f'Добавлены данные: {row}')
+                            self.stdout.write(f'Добавлены данные: {row}')
                         except Exception:
-                            self.stdout(f'Данные не добавлены: {row}')
+                            self.stdout.write(f'Данные не добавлены: {row}')
+                            continue
