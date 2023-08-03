@@ -25,7 +25,7 @@ DB_HOST=string<br>
 DB_PORT=integer<br>
 SECRET_KEY=string<br>
 DEBUG=boolean. Нужно иметь в виду, что любое нечисловое значение, попадающее в env_file, становится строкой.<br>
-ALLOWED_HOSTS=string. Передать все хосты в строке через пробел с запятой, чтобы в settings отработал метод split().
+ALLOWED_HOSTS=string. Передать все хосты в строке через пробел, чтобы в settings отработал метод split(' ').
 
 
 Для продакшена на удалённом сервере реализован файл docker-compose.production.yml с настроенным деплоем в Main Worflow с помощью GitHub Actions.
