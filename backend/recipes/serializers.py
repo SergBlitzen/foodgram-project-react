@@ -90,7 +90,7 @@ class RecipeSerializer(serializers.ModelSerializer):
     is_favorited = serializers.SerializerMethodField()
     is_in_shopping_cart = serializers.SerializerMethodField()
     name = serializers.CharField()
-    image = Base64ImageField(use_url=True)
+    image = Base64ImageField()
     text = serializers.CharField()
     cooking_time = serializers.IntegerField()
 
