@@ -44,5 +44,5 @@ ALLOWED_HOSTS=string. Передать все хосты в строке чер�
 <br>```sudo docker compose -f docker-compose.production.yml exec backend cp -r /app/collected_static/. /backend_static/static/```
 
 
-Backend and CI/CD by Serg Blitzen
-Frontend by Yandex.Practicum
+Backend and CI/CD: Serg Blitzen
+Frontend: Yandex.Practicum
