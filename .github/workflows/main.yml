@@ -69,7 +69,7 @@ jobs:
           tags: $${{ secrets.DOCKER_USERNAME }}/foodgram_backend:latest
 
   frontend_tests:
-    runs_on: ubuntu-latest
+    runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v3
