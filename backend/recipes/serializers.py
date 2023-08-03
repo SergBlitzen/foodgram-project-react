@@ -3,7 +3,6 @@ import base64
 from django.core.files.base import ContentFile
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
-
 from users.serializers import UserSerializer
 
 from .models import (Cart, Ingredient, Recipe, RecipeFav, RecipeIngredient,

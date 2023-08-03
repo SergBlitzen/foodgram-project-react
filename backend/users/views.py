@@ -1,10 +1,9 @@
 from djoser.views import UserViewSet
+from recipes.utils import create_instance, delete_instance
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-
-from recipes.utils import create_instance, delete_instance
 
 from .models import User, UserFollow
 from .serializers import UserFollowSerializer, UserSerializer
