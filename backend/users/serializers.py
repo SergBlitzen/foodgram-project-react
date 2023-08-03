@@ -1,3 +1,5 @@
+from django.contrib.auth.models import AnonymousUser
+
 from recipes.models import Recipe
 from rest_framework import serializers
 
@@ -55,6 +57,8 @@ class UserSerializer(serializers.ModelSerializer):
 
         try:
             user = self.context['request'].user
+            if type(user) == AnonymousUser:
+                return False
         # Перехват ошибки для метода update, в который передаётся
         # объект самого пользователя.
         except Exception:

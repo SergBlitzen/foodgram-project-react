@@ -120,6 +120,7 @@ class TagViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = TagSerializer
     pagination_class = None
     filterset_fields = ['slug', ]
+    http_method_names = ['get']
 
 
 class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
@@ -129,3 +130,4 @@ class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = IngredientSerializer
     pagination_class = None
     filterset_class = IngredientFilter
+    http_method_names = ['get']
