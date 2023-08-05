@@ -188,7 +188,8 @@ class RecipeSerializer(serializers.ModelSerializer):
                 )
         ingredients = []
         for ingredient_data in self.initial_data['ingredients']:
-            if ingredient_data['id'] not in ingredients:
+            if (ingredient_data['id'] not in ingredients
+                    and int(ingredient_data['amount']) > 0):
                 ingredients.append(ingredient_data['id'])
                 ingredient = Ingredient.objects.get(pk=ingredient_data['id'])
                 amount = ingredient_data['amount']
@@ -198,7 +199,8 @@ class RecipeSerializer(serializers.ModelSerializer):
             else:
                 recipe.delete()
                 raise ValidationError(
-                    "Ингредиенты в рецепте не должны дублироваться!"
+                    ("Ингредиентов в рецепте должно быть больше нуля "
+                     "и они не должны дублироваться!")
                 )
         return recipe
 

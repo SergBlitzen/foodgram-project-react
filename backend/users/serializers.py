@@ -1,5 +1,4 @@
 from django.contrib.auth.models import AnonymousUser
-
 from recipes.models import Recipe
 from rest_framework import serializers
 
@@ -34,7 +33,7 @@ class SignUpSerializer(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
-    """Основнйо сериализатор для вывода информации о пользователе."""
+    """Основной сериализатор для вывода информации о пользователе."""
     email = serializers.EmailField()
     username = serializers.CharField()
     first_name = serializers.CharField()
@@ -90,10 +89,13 @@ class UserFollowSerializer(UserSerializer):
     def get_recipes(self, obj):
         """Метод получения рецептов пользователя."""
 
-        recipes = Recipe.objects.filter(author=obj)
-        return UserRecipeSerializer(
+        # Ограничение вывода количества рецептов.
+        limit = self.context['request'].query_params['recipes_limit']
+        recipes = Recipe.objects.filter(author=obj)[:int(limit)]
+        serializer = UserRecipeSerializer(
             recipes, many=True, context=self.context
-        ).data
+        )
+        return serializer.data
 
     def get_recipes_count(self, obj):
         """Метод получения количества рецептов пользователя."""
